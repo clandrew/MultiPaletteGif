@@ -194,6 +194,11 @@ void EnsureWicImagingFactory()
 
 bool TryLoadAsRaster(std::wstring fileName)
 {
+	g_loadedDocument.SourceBuffer.clear();
+	g_loadedDocument.IndexedColorFrameBuffer.clear();
+	g_loadedDocument.Reference.PaletteEntries.clear();
+	g_loadedDocument.Palettes.clear();
+
 	ComPtr<IWICBitmapDecoder> spDecoder;
 	if (FAILED(g_wicImagingFactory->CreateDecoderFromFilename(
 		g_sourceFilePath.c_str(),
@@ -322,7 +327,7 @@ bool TryLoadAsRaster(std::wstring fileName)
 			{
 				int sourceColorIndex = g_loadedDocument.IndexedColorFrameBuffer[frameBufferIndex];
 
-				int destIndex = y * 64 + x;
+				int destIndex = y * g_loadedDocument.TargetSize.width + x;
 				UINT destRgb = 0xFFFF00FF; // Debug magenta if unknown color gets used
 				if (sourceColorIndex != -1)
 				{
@@ -433,8 +438,8 @@ extern "C" __declspec(dllexport) void _stdcall Paint()
 		D2D1_MATRIX_3X2_F transform = D2D1::Matrix3x2F::Scale(zoomFactor, zoomFactor);
 		g_renderTarget->SetTransform(transform);
 
-		D2D1_RECT_F sourceRect = D2D1::RectF(0, 0, static_cast<float>(64), static_cast<float>(64));
-		D2D1_RECT_F destRect = D2D1::RectF(0, 0, static_cast<float>(64), static_cast<float>(64));
+		D2D1_RECT_F sourceRect = D2D1::RectF(0, 0, static_cast<float>(g_loadedDocument.TargetSize.width), static_cast<float>(g_loadedDocument.TargetSize.height));
+		D2D1_RECT_F destRect = D2D1::RectF(0, 0, static_cast<float>(g_loadedDocument.TargetSize.width), static_cast<float>(g_loadedDocument.TargetSize.height));
 		g_renderTarget->DrawBitmap(
 			g_colorizedFrames[g_frameIndex].Get(),
 			destRect, 
