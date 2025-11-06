@@ -313,14 +313,14 @@ bool TryLoadAsRaster(std::wstring fileName)
 	std::vector<UINT> colorizedBuffer;
 	colorizedBuffer.resize(g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height);
 
-	frameBufferIndex = 0;
 	for (int frameIndex = 0; frameIndex < frameCount; ++frameIndex)
 	{
+		frameBufferIndex = 0;
 		for (int y = 0; y < g_loadedDocument.TargetSize.height; ++y)
 		{
 			for (int x = 0; x < g_loadedDocument.TargetSize.width; ++x)
 			{
-				int sourceColorIndex = g_loadedDocument.IndexedColorFrameBuffer[0];
+				int sourceColorIndex = g_loadedDocument.IndexedColorFrameBuffer[frameBufferIndex];
 
 				int destIndex = y * 64 + x;
 				UINT destRgb = 0xFFFF00FF; // Debug magenta if unknown color gets used
