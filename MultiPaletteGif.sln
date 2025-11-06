@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.452
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiPaletteGif", "Managed\MultiPaletteGif.csproj", "{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{51C7AD01-13EC-4AA2-867D-43F2ED879266} = {51C7AD01-13EC-4AA2-867D-43F2ED879266}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Native", "Native\Native.vcxproj", "{51C7AD01-13EC-4AA2-867D-43F2ED879266}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}.Release|x86.Build.0 = Release|Any CPU
+		{51C7AD01-13EC-4AA2-867D-43F2ED879266}.Debug|x86.ActiveCfg = Debug|Win32
+		{51C7AD01-13EC-4AA2-867D-43F2ED879266}.Debug|x86.Build.0 = Debug|Win32
+		{51C7AD01-13EC-4AA2-867D-43F2ED879266}.Release|x86.ActiveCfg = Release|Win32
+		{51C7AD01-13EC-4AA2-867D-43F2ED879266}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20F207CF-7727-48AE-85E4-3903171CA82D}
+	EndGlobalSection
+EndGlobal
