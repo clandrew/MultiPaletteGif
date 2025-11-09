@@ -30,6 +30,7 @@ The format of the metadata is as follows.
 * Each palette start is delimited with a magenta pixel.
 * The first palette is the 'reference' palette.
   * All pixel colors in your frame buffer need to be of this palette. The colors need to all be unique (different from each other).
+  * The maximum number of colors in the palette is 256.
 * After that, there are (from 1, to however many you want) palettes.
   * The number of palettes determines the frame count of the output GIF.
 * After the last palette, there is a cyan pixel. Anything furthermore on that row is ignored.
