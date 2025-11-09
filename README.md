@@ -5,7 +5,7 @@ Features:
 * Flexible palette size up to 256 colors
 * Easy-to-use source format compatible with external editors
 * Press 'F5' to refresh the image from disk
-* Scrub through frames manually or toggle 'Autoplay' to animate continuously
+* Scrub through frames manually or toggle 'Autoplay' to animate the preview continuously
 * Can set the speed of the GIF and loop count, or infinite loop
 * Can apply a scale factor to the output
 
