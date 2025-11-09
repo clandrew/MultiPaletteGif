@@ -123,6 +123,77 @@ struct LoadedDocument
 };
 LoadedDocument g_loadedDocument;
 
+struct MetadataLoader
+{
+	int m_sourceBufferIndex;
+	int m_metadataRowCount;
+	static const UINT magenta = 0xffff00ff;
+	static const UINT cyan    = 0xff00ffff;
+	static const UINT yellow  = 0xffffff00;
+
+	UINT LoadNextNonComment()
+	{
+		UINT value = yellow;
+		while (value == yellow)
+		{
+			value = g_loadedDocument.SourceBuffer[m_sourceBufferIndex];
+			++m_sourceBufferIndex;
+		}
+
+		return value;
+	}
+
+public:
+	MetadataLoader()
+		: m_sourceBufferIndex(0)
+		, m_metadataRowCount(0)
+	{
+	}
+
+	bool LoadMetadata()
+	{
+		UINT topLeft = LoadNextNonComment();
+		if (topLeft != magenta)
+		{
+			return false;
+		}
+
+		UINT referenceColor = LoadNextNonComment();
+		while (referenceColor != magenta)
+		{
+			g_loadedDocument.Reference.PaletteEntries.push_back(referenceColor);
+			referenceColor = LoadNextNonComment();
+		}
+
+		UINT paletteSize = g_loadedDocument.Reference.PaletteEntries.size();
+
+		UINT paletteColor = referenceColor;
+		while (paletteColor != cyan)
+		{
+			assert(paletteColor == magenta); // Delimiter
+
+			Palette p;
+			for (int i = 0; i < paletteSize; ++i)
+			{
+				paletteColor = LoadNextNonComment();
+				p.PaletteEntries.push_back(paletteColor);
+			}
+			g_loadedDocument.Palettes.push_back(p);
+			paletteColor = LoadNextNonComment();
+		}
+
+		UINT metadataRow = m_sourceBufferIndex / g_loadedDocument.SourceSize.width;
+		m_metadataRowCount = metadataRow + 1;
+
+		return true;
+	}
+
+	UINT GetMetadataRowCount()
+	{
+		return m_metadataRowCount;
+	}
+};
+
 struct TimerInfo
 {
 	HWND ParentDialog;
@@ -249,41 +320,13 @@ bool TryLoadAsRaster(std::wstring fileName)
 		return false;
 	}
 
-	int sourceBufferIndex = 0;
-	UINT topLeft = g_loadedDocument.SourceBuffer[sourceBufferIndex];
-	const UINT magenta = 0xffff00ff;
-	const UINT cyan = 0xff00ffff;
-	if (topLeft != magenta)
+	MetadataLoader metadataLoader;
+	if (!metadataLoader.LoadMetadata())
 	{
 		return false;
 	}
-	
-	sourceBufferIndex = 1;
-	while (g_loadedDocument.SourceBuffer[sourceBufferIndex] != magenta)
-	{
-		UINT referenceColor = g_loadedDocument.SourceBuffer[sourceBufferIndex];
-		g_loadedDocument.Reference.PaletteEntries.push_back(referenceColor);
-		sourceBufferIndex++;
-	}
 
-	UINT paletteSize = g_loadedDocument.Reference.PaletteEntries.size();
-
-	while (g_loadedDocument.SourceBuffer[sourceBufferIndex] != cyan)
-	{
-		UINT delimiter = g_loadedDocument.SourceBuffer[sourceBufferIndex];
-		assert(delimiter == magenta);
-		sourceBufferIndex++;
-		Palette p;
-		for (int i = 0; i < paletteSize; ++i)
-		{
-			p.PaletteEntries.push_back(g_loadedDocument.SourceBuffer[sourceBufferIndex]);
-			sourceBufferIndex++;
-		}
-		g_loadedDocument.Palettes.push_back(p);
-	}
-
-	UINT metadataRow = sourceBufferIndex / g_loadedDocument.SourceSize.width;
-	g_loadedDocument.MetadataRowCount = metadataRow + 1;
+	g_loadedDocument.MetadataRowCount = metadataLoader.GetMetadataRowCount();
 	g_loadedDocument.TargetSize.width = g_loadedDocument.SourceSize.width;
 	g_loadedDocument.TargetSize.height = g_loadedDocument.SourceSize.height - g_loadedDocument.MetadataRowCount;
 
@@ -469,14 +512,14 @@ extern "C" __declspec(dllexport) void _stdcall PreviousFrame(HWND parentDialog)
 	}
 	else
 	{
-		g_frameIndex = 6;
+		g_frameIndex = g_loadedDocument.Palettes.size() - 1;
 	}
 	g_windowTitleHelper.SetFrameNumber(parentDialog, g_frameIndex);
 }
 
 extern "C" __declspec(dllexport) void _stdcall NextFrame(HWND parentDialog)
 {
-	if (g_frameIndex < 6)
+	if (g_frameIndex < g_loadedDocument.Palettes.size() - 1)
 	{
 		++g_frameIndex;
 	}
