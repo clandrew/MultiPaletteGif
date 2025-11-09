@@ -187,7 +187,9 @@ namespace Spritesheet2Gif
             int width = 64;
             int height = 64;
 
-            Native.SaveGif(this.Handle, (int)gifSpeed.Value, loopCountLowLevel, width, height);
+            int scaleFactor = (int)(scaleFactorNumericUpDown.Value);
+
+            Native.SaveGif(this.Handle, (int)gifSpeed.Value, loopCountLowLevel, width, height, scaleFactor);
         }
 
         private void ZoomInToolStripMenuItem_Click(object sender, EventArgs e)
@@ -248,7 +250,7 @@ class Native
     public static extern void SetAutoplaySpeed(IntPtr parentDialog, int gifSpeed);
 
     [DllImport("Native.dll")]
-    public static extern void SaveGif(IntPtr parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight);
+    public static extern void SaveGif(IntPtr parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight, int scaleFactor);
 
     [DllImport("Native.dll")]
     public static extern void ZoomIn(IntPtr parentDialog);

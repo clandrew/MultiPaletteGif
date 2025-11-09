@@ -40,6 +40,8 @@
             this.resetZoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.scaleFactorNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.gifSpeed = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -59,6 +61,7 @@
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.scaleFactorNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gifSpeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.loopCount)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -168,6 +171,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label5);
+            this.groupBox3.Controls.Add(this.scaleFactorNumericUpDown);
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Controls.Add(this.gifSpeed);
             this.groupBox3.Controls.Add(this.label4);
@@ -176,10 +181,41 @@
             this.groupBox3.Controls.Add(this.loopNTimes);
             this.groupBox3.Location = new System.Drawing.Point(4, 190);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(189, 110);
+            this.groupBox3.Size = new System.Drawing.Size(189, 153);
             this.groupBox3.TabIndex = 11;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "GIF Properties";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 109);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(70, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Scale Factor:";
+            // 
+            // scaleFactorNumericUpDown
+            // 
+            this.scaleFactorNumericUpDown.Location = new System.Drawing.Point(95, 109);
+            this.scaleFactorNumericUpDown.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.scaleFactorNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.scaleFactorNumericUpDown.Name = "scaleFactorNumericUpDown";
+            this.scaleFactorNumericUpDown.Size = new System.Drawing.Size(75, 20);
+            this.scaleFactorNumericUpDown.TabIndex = 11;
+            this.scaleFactorNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // label3
             // 
@@ -361,6 +397,7 @@
             this.panel1.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.scaleFactorNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gifSpeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.loopCount)).EndInit();
             this.groupBox2.ResumeLayout(false);
@@ -401,6 +438,8 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox targetWidth;
         private System.Windows.Forms.TextBox targetHeight;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown scaleFactorNumericUpDown;
     }
 }
 

@@ -585,7 +585,7 @@ extern "C" __declspec(dllexport) void _stdcall SetAutoplaySpeed(HWND parent, int
 	StartTimer(parent, 1, speed);
 }
 
-extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight)
+extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight, int scaleFactor)
 {
 	TCHAR documentsPath[MAX_PATH];
 
@@ -725,7 +725,7 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 			}
 		}
 
-		if (FAILED(frameEncode->SetSize(gifWidth, gifHeight)))
+		if (FAILED(frameEncode->SetSize(gifWidth * scaleFactor, gifHeight * scaleFactor)))
 		{
 			return;
 		}
@@ -755,17 +755,46 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 			paletteData[i] = g_loadedDocument.Palettes[frameIndex].PaletteEntries[i];
 		}
 
-		HRESULT hrTest2 = (palette->InitializeCustom(paletteData.data(), 8));
+		HRESULT hrTest2 = (palette->InitializeCustom(paletteData.data(), numColors));
 
 		HRESULT hrTest3 = frameEncode->SetPalette(palette.Get());
 
-		HRESULT hrTest = (frameEncode->WritePixels(
-			g_loadedDocument.TargetSize.height,
-			g_loadedDocument.TargetSize.width,
-			g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height,
-			g_loadedDocument.IndexedColorFrameBuffer.data()));
+		if (scaleFactor == 1)
 		{
-			//return;
+			HRESULT hrTest = (frameEncode->WritePixels(
+				g_loadedDocument.TargetSize.height,
+				g_loadedDocument.TargetSize.width,
+				g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height,
+				g_loadedDocument.IndexedColorFrameBuffer.data()));
+
+		}
+		else
+		{
+			std::vector<byte> scaledFrameBuffer;
+			scaledFrameBuffer.resize(g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height * scaleFactor * scaleFactor);
+
+			for (int srcY = 0; srcY < g_loadedDocument.TargetSize.height; ++srcY)
+			{
+				for (int srcX = 0; srcX < g_loadedDocument.TargetSize.width; ++srcX)
+				{
+					int val = g_loadedDocument.IndexedColorFrameBuffer[srcY * g_loadedDocument.TargetSize.width + srcX];
+
+					for (int dstY = srcY * scaleFactor; dstY < srcY * scaleFactor + scaleFactor; ++dstY)
+					{
+						for (int dstX = srcX * scaleFactor; dstX < srcX * scaleFactor + scaleFactor; ++dstX)
+						{
+							scaledFrameBuffer[dstY * g_loadedDocument.TargetSize.width * scaleFactor + dstX] = val;
+						}
+					}
+				}
+
+			}
+
+			HRESULT hrTest = (frameEncode->WritePixels(
+				g_loadedDocument.TargetSize.height * scaleFactor,
+				g_loadedDocument.TargetSize.width * scaleFactor,
+				g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height * scaleFactor * scaleFactor,
+				scaledFrameBuffer.data()));
 		}
 
 		if (FAILED(frameEncode->Commit()))
