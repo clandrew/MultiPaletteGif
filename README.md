@@ -13,6 +13,8 @@ Features:
 
 ![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/Screenshot.PNG "Example image")
 
+![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/export.gif "Example image")
+
 The program runs standalone without an installer.
 
 ## Supported input formats
