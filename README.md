@@ -9,8 +9,8 @@ Features:
 * Can set the speed of the GIF and loop count, or infinite loop
 * Can apply a scale factor to the output
 
-![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/SourceImage.gif "Example image")
-![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/Screenshot.gif "Example image")
+![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/SourceImage.PNG "Example image")
+![Example image](https://raw.githubusercontent.com/clandrew/MultiPaletteGif/master/Images/Screenshot.PNG "Example image")
 
 The program runs standalone without an installer.
 
