@@ -196,6 +196,23 @@ public:
 			return false;
 		}
 
+		// Check that the reference colors are all different from each other
+		for (int i = 0; i < g_loadedDocument.Reference.PaletteEntries.size() - 1; ++i)
+		{
+			for (int j = i + 1; j < g_loadedDocument.Reference.PaletteEntries.size(); ++j)
+			{
+				assert(i != j);
+				if (g_loadedDocument.Reference.PaletteEntries[i] == g_loadedDocument.Reference.PaletteEntries[j])
+				{
+					std::stringstream ss;
+					ss << "Metadata load error: the reference palette contained duplicate entries. The colors at index " << i << " and " << j 
+						<< " are both 0x" << std::hex << g_loadedDocument.Reference.PaletteEntries[i] << ".";
+					MessageBoxA(nullptr, ss.str().c_str(), "Error loading document", MB_OK);
+					return false;
+				}
+			}
+		}
+
 		UINT paletteSize = g_loadedDocument.Reference.PaletteEntries.size();
 
 		UINT paletteColor = referenceColor;
@@ -393,14 +410,26 @@ bool TryLoadAsRaster(std::wstring fileName)
 
 			// What color index is it? Use the reference
 			BYTE sourceColorIndex = 0xFF;
+			bool colorFound = false;
 			assert(g_loadedDocument.Reference.PaletteEntries.size() < 256);
 			for (int colorIndex = 0; colorIndex < g_loadedDocument.Reference.PaletteEntries.size(); ++colorIndex)
 			{
 				if (sourceColor == g_loadedDocument.Reference.PaletteEntries[colorIndex])
 				{
 					sourceColorIndex = colorIndex;
+					colorFound = true;
 				}
 			}
+
+			if (!colorFound)
+			{
+				std::stringstream ss;
+				ss << "Document load error: there's a color, 0x" << std::hex << sourceColor << std::dec << 
+					" at x = " << x << ", y = " << y << " that isn't any of the " << g_loadedDocument.Reference.PaletteEntries.size() << " colors of the reference palette.";
+				MessageBoxA(nullptr, ss.str().c_str(), "Error loading document", MB_OK);
+				return false;
+			}
+
 			g_loadedDocument.IndexedColorFrameBuffer[frameBufferIndex] = sourceColorIndex;
 			++frameBufferIndex;
 		}
