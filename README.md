@@ -22,6 +22,20 @@ For the source image, the program supports all the formats supported by WIC: png
 
 Because the program uses hardware bitmaps, images must be under the Direct3D GPU texture limit. Generally, this means having neither width nor height exceeding 16384.
 
+## Metadata format
+At the top of your input image, there's expected to have some rows of 'metadata' which specify the palettes. 
+The format of the metadata is as follows.
+* Pixels are read left to right, then top to bottom.
+* Yellow pixels are 'comments', added for spacing, and ignored.
+* Each palette start is delimited with a magenta pixel.
+* The first palette is the 'reference' palette.
+  * All pixel colors in your frame buffer need to be of this palette. The colors need to all be unique (different from each other).
+* After that, there are (from 1, to however many you want) palettes.
+  * The number of palettes determines the frame count of the output GIF.
+* After the last palette, there is a cyan pixel. Anything furthermore on that row is ignored.
+
+The metadata isn't included in the output GIF. For example, if your metadata takes up 4 rows at the top and your source image has a height of 68, the output height will be 64.
+
 ## Release
 You don't need to build the code to run it. Download the release from the [releases page](https://github.com/clandrew/MultiPaletteGif/releases).
 
