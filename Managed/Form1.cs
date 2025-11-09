@@ -38,11 +38,8 @@ namespace Spritesheet2Gif
             {
                 if (Native.AutoOpenDocument(this.Handle) != 0)
                 {
+                    // Convention: the native DLL emits error dialog boxes. Reason: I couldn't figure out how to safely marshal a returned string hahaha
                     AfterOpen_EnableUI();
-                }
-                else
-                {
-                    MessageBox.Show("An error occurred when opening the document.");
                 }
             }
 #endif

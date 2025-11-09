@@ -131,15 +131,24 @@ struct MetadataLoader
 	static const UINT cyan    = 0xff00ffff;
 	static const UINT yellow  = 0xffffff00;
 
-	UINT LoadNextNonComment()
+	UINT LoadNextNonComment(bool* pReachedEnd)
 	{
 		UINT value = yellow;
 		while (value == yellow)
 		{
-			value = g_loadedDocument.SourceBuffer[m_sourceBufferIndex];
-			++m_sourceBufferIndex;
+			if (m_sourceBufferIndex < g_loadedDocument.SourceBuffer.size())
+			{
+				value = g_loadedDocument.SourceBuffer[m_sourceBufferIndex];
+				++m_sourceBufferIndex;
+			}
+			else
+			{
+				*pReachedEnd = true;
+				return magenta;
+			}
 		}
 
+		*pReachedEnd = false;
 		return value;
 	}
 
@@ -152,17 +161,39 @@ public:
 
 	bool LoadMetadata()
 	{
-		UINT topLeft = LoadNextNonComment();
+		bool reachedEnd = false;
+
+		UINT topLeft = LoadNextNonComment(&reachedEnd);
 		if (topLeft != magenta)
 		{
+			MessageBoxA(nullptr, "Metadata load error: no magenta delimiter pixel found for the reference palette.", "Error loading document", MB_OK);
 			return false;
 		}
 
-		UINT referenceColor = LoadNextNonComment();
+		UINT referenceColor = LoadNextNonComment(&reachedEnd);
+		if (reachedEnd)
+		{
+			MessageBoxA(nullptr, "Metadata load error: reached the end of the document before finding any reference palette.", "Error loading document", MB_OK);
+			return false;
+		}
+
 		while (referenceColor != magenta)
 		{
 			g_loadedDocument.Reference.PaletteEntries.push_back(referenceColor);
-			referenceColor = LoadNextNonComment();
+			referenceColor = LoadNextNonComment(&reachedEnd);
+			if (reachedEnd)
+			{
+				MessageBoxA(nullptr, "Metadata load error: reached the end of the document before loading any reference palette.", "Error loading document", MB_OK);
+				return false;
+			}
+		}
+
+		if (g_loadedDocument.Reference.PaletteEntries.size() > 256)
+		{
+			std::stringstream ss;
+			ss << "Metadata load error: the reference palette contained " << g_loadedDocument.Reference.PaletteEntries.size() << " colors, which exceeds the maximum of 256.";
+			MessageBoxA(nullptr, ss.str().c_str(), "Error loading document", MB_OK);
+			return false;
 		}
 
 		UINT paletteSize = g_loadedDocument.Reference.PaletteEntries.size();
@@ -170,16 +201,35 @@ public:
 		UINT paletteColor = referenceColor;
 		while (paletteColor != cyan)
 		{
-			assert(paletteColor == magenta); // Delimiter
+			if (paletteColor != magenta)
+			{
+				std::stringstream ss;
+				ss << "Metadata load error: palette " << g_loadedDocument.Palettes.size() << " has a different number of colors from the reference palette, which has " << paletteSize << ".";
+				MessageBoxA(nullptr, ss.str().c_str(), "Error loading document", MB_OK);
+				return false;
+			}
 
 			Palette p;
 			for (int i = 0; i < paletteSize; ++i)
 			{
-				paletteColor = LoadNextNonComment();
+				paletteColor = LoadNextNonComment(&reachedEnd);
+				if (reachedEnd)
+				{
+					std::stringstream ss;
+					ss << "Metadata load error: reached the end of the document before finishing loading palette " << g_loadedDocument.Palettes.size() << ".";
+					MessageBoxA(nullptr, ss.str().c_str(), "Error loading document", MB_OK);
+					return false;
+				}
 				p.PaletteEntries.push_back(paletteColor);
 			}
 			g_loadedDocument.Palettes.push_back(p);
-			paletteColor = LoadNextNonComment();
+			paletteColor = LoadNextNonComment(&reachedEnd);
+		}
+
+		if (reachedEnd)
+		{
+			MessageBoxA(nullptr, "Metadata load error: reached the end of the document before finding the cyan end-of-metadata delimiter.", "Error loading document", MB_OK);
+			return false;
 		}
 
 		UINT metadataRow = m_sourceBufferIndex / g_loadedDocument.SourceSize.width;
