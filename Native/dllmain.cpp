@@ -400,30 +400,32 @@ bool TryLoadAsRaster(std::wstring fileName)
 	return true;
 }
 
-void LoadDocumentImpl()
+bool LoadDocumentImpl()
 {
 	EnsureWicImagingFactory();
 
-	if (!TryLoadAsRaster(g_sourceFilePath.c_str()))
-	{
-		assert(false);
-	}
-
-	return;
+	return TryLoadAsRaster(g_sourceFilePath.c_str());
 
 }
 
-void OpenDocumentFileImpl(HWND dialogParent, std::wstring fileName)
+bool OpenDocumentFileImpl(HWND dialogParent, std::wstring fileName)
 {
 	g_sourceFilePath = fileName;
 
-	LoadDocumentImpl();
+	if (LoadDocumentImpl())
+	{
+		g_windowTitleHelper.SetOpenFileName(dialogParent, g_sourceFilePath);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 
-	g_windowTitleHelper.SetOpenFileName(dialogParent, g_sourceFilePath);
 
 }
 
-extern "C" __declspec(dllexport) void _stdcall OpenDocument(HWND dialogParent)
+extern "C" __declspec(dllexport) bool _stdcall OpenDocument(HWND dialogParent)
 {
 	TCHAR documentsPath[MAX_PATH];
 
@@ -455,17 +457,17 @@ extern "C" __declspec(dllexport) void _stdcall OpenDocument(HWND dialogParent)
 	// Display the Open dialog box. 
 
 	if (GetOpenFileName(&ofn) == 0)
-		return;
+		return false;
 
-	OpenDocumentFileImpl(dialogParent, ofn.lpstrFile);
+	return OpenDocumentFileImpl(dialogParent, ofn.lpstrFile);
 }
 
 #if _DEBUG
-extern "C" __declspec(dllexport) void _stdcall AutoOpenDocument(HWND dialogParent)
+extern "C" __declspec(dllexport) bool _stdcall AutoOpenDocument(HWND dialogParent)
 {
 	std::wstring testFilename = L"C:\\Users\\cmlan\\OneDrive\\Pictures\\rotation.png";
 
-	OpenDocumentFileImpl(dialogParent, testFilename);
+	return OpenDocumentFileImpl(dialogParent, testFilename);
 }
 #endif
 
@@ -585,7 +587,7 @@ extern "C" __declspec(dllexport) void _stdcall SetAutoplaySpeed(HWND parent, int
 	StartTimer(parent, 1, speed);
 }
 
-extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight, int scaleFactor)
+extern "C" __declspec(dllexport) bool _stdcall SaveGif(HWND parentDialog, int animationSpeed, int loopCount, int scaleFactor)
 {
 	TCHAR documentsPath[MAX_PATH];
 
@@ -614,7 +616,7 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 
 	if (GetSaveFileName(&ofn) == 0)
-		return;
+		return false;
 
 	EnsureWicImagingFactory();
 
@@ -623,28 +625,28 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 	ComPtr<IWICStream> stream;
 	if (FAILED(g_wicImagingFactory->CreateStream(&stream)))
 	{
-		return;
+		return false;
 	}
 	if (FAILED(stream->InitializeFromFilename(destFilename.c_str(), GENERIC_WRITE)))
 	{
-		return;
+		return false;
 	}
 
 	ComPtr<IWICBitmapEncoder> encoder;
 	if (FAILED(g_wicImagingFactory->CreateEncoder(GUID_ContainerFormatGif, NULL, &encoder)))
 	{
-		return;
+		return false;
 	}
 
 	if (FAILED(encoder->Initialize(stream.Get(), WICBitmapEncoderNoCache)))
 	{
-		return;
+		return false;
 	}
 
 	ComPtr<IWICMetadataQueryWriter> globalMetadataQueryWriter;
 	if (FAILED(encoder->GetMetadataQueryWriter(&globalMetadataQueryWriter)))
 	{
-		return;
+		return false;
 	}
 
 	{
@@ -670,7 +672,7 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 
 		if (FAILED(globalMetadataQueryWriter->SetMetadataByName(L"/appext/data", &value)))
 		{
-			return;
+			return false;
 		}
 	}
 	{
@@ -684,8 +686,8 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 		val.caub.pElems = data;
 
 		if (FAILED(globalMetadataQueryWriter->SetMetadataByName(L"/appext/application", &val)))
-		{	
-			return;
+		{
+			return false;
 		}
 	}
 
@@ -697,12 +699,12 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 		ComPtr<IWICBitmapFrameEncode> frameEncode;
 		if (FAILED(encoder->CreateNewFrame(&frameEncode, &wicPropertyBag)))
 		{
-			return;
+			return false;
 		}
 
 		if (FAILED(frameEncode->Initialize(wicPropertyBag.Get())))
 		{
-			return;
+			return false;
 		}
 
 		// Reference: https://docs.microsoft.com/en-us/windows/win32/wic/-wic-native-image-format-metadata-queries#gif-metadata
@@ -711,7 +713,7 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 		ComPtr<IWICMetadataQueryWriter> frameMetadataQueryWriter;
 		if (FAILED(frameEncode->GetMetadataQueryWriter(&frameMetadataQueryWriter)))
 		{
-			return;
+			return false;
 		}
 
 		{
@@ -721,30 +723,30 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 			value.uiVal = animationSpeed / 10;
 			if (FAILED(frameMetadataQueryWriter->SetMetadataByName(L"/grctlext/Delay", &value)))
 			{
-				return;
+				return false;
 			}
 		}
 
-		if (FAILED(frameEncode->SetSize(gifWidth * scaleFactor, gifHeight * scaleFactor)))
+		if (FAILED(frameEncode->SetSize(g_loadedDocument.TargetSize.width * scaleFactor, g_loadedDocument.TargetSize.height * scaleFactor)))
 		{
-			return;
+			return false;
 		}
 
 		if (FAILED(frameEncode->SetResolution(96, 96)))
 		{
-			return;
+			return false;
 		}
 
 		WICPixelFormatGUID pixelFormat = GUID_WICPixelFormat8bppIndexed;
 		if (FAILED(frameEncode->SetPixelFormat(&pixelFormat)))
 		{
-			return;
+			return false;
 		}
 
 		ComPtr<IWICPalette> palette;
 		if (FAILED(g_wicImagingFactory->CreatePalette(&palette)))
 		{
-			return;
+			return false;
 		}
 
 		int numColors = g_loadedDocument.Reference.PaletteEntries.size();
@@ -755,17 +757,26 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 			paletteData[i] = g_loadedDocument.Palettes[frameIndex].PaletteEntries[i];
 		}
 
-		HRESULT hrTest2 = (palette->InitializeCustom(paletteData.data(), numColors));
+		if (FAILED(palette->InitializeCustom(paletteData.data(), numColors)))
+		{
+			return false;
+		}
 
-		HRESULT hrTest3 = frameEncode->SetPalette(palette.Get());
+		if (FAILED(frameEncode->SetPalette(palette.Get())))
+		{
+			return false;
+		}
 
 		if (scaleFactor == 1)
 		{
-			HRESULT hrTest = (frameEncode->WritePixels(
+			if (FAILED(frameEncode->WritePixels(
 				g_loadedDocument.TargetSize.height,
 				g_loadedDocument.TargetSize.width,
 				g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height,
-				g_loadedDocument.IndexedColorFrameBuffer.data()));
+				g_loadedDocument.IndexedColorFrameBuffer.data())))
+			{
+				return false;
+			}
 
 		}
 		else
@@ -790,28 +801,33 @@ extern "C" __declspec(dllexport) void _stdcall SaveGif(HWND parentDialog, int an
 
 			}
 
-			HRESULT hrTest = (frameEncode->WritePixels(
+			if (FAILED(frameEncode->WritePixels(
 				g_loadedDocument.TargetSize.height * scaleFactor,
 				g_loadedDocument.TargetSize.width * scaleFactor,
 				g_loadedDocument.TargetSize.width * g_loadedDocument.TargetSize.height * scaleFactor * scaleFactor,
-				scaledFrameBuffer.data()));
+				scaledFrameBuffer.data())))
+			{
+				return false;
+			}
 		}
 
 		if (FAILED(frameEncode->Commit()))
 		{
-			return;
+			return false;
 		}
 	}
 
 	if (FAILED(encoder->Commit()))
 	{
-		return;
+		return false;
 	}
 
 	if (FAILED(stream->Commit(STGC_DEFAULT)))
 	{
-		return;
+		return false;
 	}
+
+	return true;
 }
 
 extern "C" __declspec(dllexport) void _stdcall ZoomIn(HWND parentDialog)
@@ -841,9 +857,9 @@ extern "C" __declspec(dllexport) void _stdcall ResetZoom(HWND parentDialog)
 	g_windowTitleHelper.SetZoomFactor(parentDialog, g_zoomPercentStrings[g_zoomIndex]);
 }
 
-extern "C" __declspec(dllexport) void _stdcall ReloadImage()
+extern "C" __declspec(dllexport) bool _stdcall ReloadImage()
 {
-	LoadDocumentImpl();
+	return LoadDocumentImpl();
 }
 
 extern "C" __declspec(dllexport) void _stdcall Uninitialize()

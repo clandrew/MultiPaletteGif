@@ -18,7 +18,7 @@ namespace Spritesheet2Gif
 
             canvasGraphics = canvas.CreateGraphics();
             canvasHdc = canvasGraphics.GetHdc();
-            if (!Native.Initialize(canvas.Width, canvas.Height, this.Handle, canvasHdc))
+            if (Native.Initialize(canvas.Width, canvas.Height, this.Handle, canvasHdc) == 0)
             {
                 this.Load += ErrorOnLoad;
             }
@@ -36,8 +36,14 @@ namespace Spritesheet2Gif
 #if DEBUG
             if (dbgAutoOpen)
             {
-                Native.AutoOpenDocument(this.Handle);
-                AfterOpen_EnableUI();
+                if (Native.AutoOpenDocument(this.Handle) != 0)
+                {
+                    AfterOpen_EnableUI();
+                }
+                else
+                {
+                    MessageBox.Show("An error occurred when opening the document.");
+                }
             }
 #endif
         }
@@ -86,9 +92,14 @@ namespace Spritesheet2Gif
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Native.OpenDocument(this.Handle);
-
-            AfterOpen_EnableUI();
+            if (Native.OpenDocument(this.Handle) != 0)
+            {
+                AfterOpen_EnableUI();
+            }
+            else
+            {
+                MessageBox.Show("An error occurred when opening the document.");
+            }
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -184,12 +195,9 @@ namespace Spritesheet2Gif
                 loopCountLowLevel = (int)loopCount.Value;
             }
 
-            int width = 64;
-            int height = 64;
-
             int scaleFactor = (int)(scaleFactorNumericUpDown.Value);
 
-            Native.SaveGif(this.Handle, (int)gifSpeed.Value, loopCountLowLevel, width, height, scaleFactor);
+            Native.SaveGif(this.Handle, (int)gifSpeed.Value, loopCountLowLevel, scaleFactor);
         }
 
         private void ZoomInToolStripMenuItem_Click(object sender, EventArgs e)
@@ -221,7 +229,7 @@ namespace Spritesheet2Gif
 class Native
 {
     [DllImport("Native.dll")]
-    public static extern bool Initialize(int clientWidth, int clientHeight, IntPtr parentDialog, IntPtr handle);
+    public static extern Byte Initialize(int clientWidth, int clientHeight, IntPtr parentDialog, IntPtr handle);
     [DllImport("Native.dll")]
     public static extern void OnResize(int clientWidth, int clientHeight, IntPtr handle);
 
@@ -229,9 +237,9 @@ class Native
     public static extern void Paint();
 
     [DllImport("Native.dll")]
-    public static extern void OpenDocument(IntPtr parentDialog);
+    public static extern Byte OpenDocument(IntPtr parentDialog);
     [DllImport("Native.dll")]
-    public static extern void AutoOpenDocument(IntPtr parentDialog);
+    public static extern Byte AutoOpenDocument(IntPtr parentDialog);
     [DllImport("Native.dll")]
     public static extern int GetTargetWidth();
     [DllImport("Native.dll")]
@@ -250,7 +258,7 @@ class Native
     public static extern void SetAutoplaySpeed(IntPtr parentDialog, int gifSpeed);
 
     [DllImport("Native.dll")]
-    public static extern void SaveGif(IntPtr parentDialog, int animationSpeed, int loopCount, int gifWidth, int gifHeight, int scaleFactor);
+    public static extern Byte SaveGif(IntPtr parentDialog, int animationSpeed, int loopCount, int scaleFactor);
 
     [DllImport("Native.dll")]
     public static extern void ZoomIn(IntPtr parentDialog);
