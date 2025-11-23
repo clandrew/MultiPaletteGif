@@ -18,7 +18,7 @@ Features:
 The program runs standalone without an installer.
 
 ## Supported input formats
-For the source image, the program supports all the formats supported by WIC: png, bmp, jpg, etc. It does not support other formats, for example SVG.
+For the source image, the program supports all the formats supported by WIC: png, bmp, jpg, etc.
 
 Because the program uses hardware bitmaps, images must be under the Direct3D GPU texture limit. Generally, this means having neither width nor height exceeding 16384.
 
