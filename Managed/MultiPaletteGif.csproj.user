@@ -6,7 +6,7 @@
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartAction>Program</StartAction>
+    <StartAction>Project</StartAction>
     <StartProgram>C:\Users\Claire\source\repos\MultiPaletteGif\Release\MultiPaletteGif.exe</StartProgram>
   </PropertyGroup>
 </Project>
