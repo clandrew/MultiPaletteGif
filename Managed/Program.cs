@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Spritesheet2Gif
+namespace MultiPaletteGif
 {
     static class Program
     {

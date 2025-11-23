@@ -1,4 +1,4 @@
-﻿namespace Spritesheet2Gif
+﻿namespace MultiPaletteGif
 {
     partial class Form1
     {
@@ -388,7 +388,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Spritesheet2Gif";
+            this.Text = "MultiPaletteGif";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);

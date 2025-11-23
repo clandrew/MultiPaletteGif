@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CAF3E421-7693-4CD4-A9D5-3869E2F5014C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Spritesheet2Gif</RootNamespace>
-    <AssemblyName>Spritesheet2Gif</AssemblyName>
+    <RootNamespace>MultiPaletteGif</RootNamespace>
+    <AssemblyName>MultiPaletteGif</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

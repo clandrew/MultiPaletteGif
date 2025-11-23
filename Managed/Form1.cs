@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace Spritesheet2Gif
+namespace MultiPaletteGif
 {
     public partial class Form1 : Form
     {
