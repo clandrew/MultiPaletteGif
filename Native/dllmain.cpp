@@ -197,7 +197,7 @@ public:
 		}
 
 		// Check that the reference colors are all different from each other
-		for (int i = 0; i < g_loadedDocument.Reference.PaletteEntries.size() - 1; ++i)
+		for (int i = 0; i < (int)g_loadedDocument.Reference.PaletteEntries.size() - 1; ++i)
 		{
 			for (int j = i + 1; j < g_loadedDocument.Reference.PaletteEntries.size(); ++j)
 			{
